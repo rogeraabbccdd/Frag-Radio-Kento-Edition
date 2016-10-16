@@ -1,0 +1,464 @@
+//**********************************************  Valid Colors	*********************************************************
+// {NORMAL}, {DARKRED}, {PINK}, {YELLOW}, {GREEN}, {LIGHTGREEN}, {RED}, {GRAY}, {BLUE}, {DARKBLUE}, {PURPLE}, {ORANGE}  *
+//***********************************************************************************************************************
+//                                           zho Translated By Kento                                                    *
+//***********************************************************************************************************************
+"Phrases"
+{
+	"WelcomeAdvert"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{NORMAL} To listen to the radio type {RED}!radio {NORMAL}in chat."
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 在對話框輸入 {RED}!radio {NORMAL}打開收音機."
+	}
+	"Advert 1"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} In-Game Radio by {PINK}FragRadio"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} In-Game Radio by {PINK}FragRadio"
+	}
+	"Advert 2"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Type {PINK}!poon{NORMAL} to show us you dont like the current song!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 輸入 {PINK}!poon{NORMAL} 來告訴我們你不喜歡這首歌!"
+	}
+	"Advert 3"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Type {PINK}!dj{NORMAL} to see what dj is currently onair!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 輸入 {PINK}!dj{NORMAL} 查看線上DJ!"
+	}
+	"Advert 4"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Type {PINK}!joke{NORMAL} to say something funny to the dj currently on air!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 輸入 {PINK}!joke{NORMAL} 來對DJ說些有趣的話吧!"
+	}
+	"Advert 5"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Want this plugin for your server? Visit {PINK}fragradio.com/plugins{NORMAL} to download it!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 想要在你的伺服器安裝這個插件嗎? 前往 {PINK}fragradio.com/plugins{NORMAL} 下載!"
+	}
+	"Advert 6"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Type {PINK}!request <song>{NORMAL} to request a song!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 輸入 {PINK}!request <song>{NORMAL} 點播歌曲!"
+	}
+	"Advert 7"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Type {PINK}!choon{NORMAL} to show us you like the current song!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 輸入 {PINK}!choon{NORMAL} 來告訴我們你超喜歡這首歌!"
+	}
+	"Advert 8"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Type {PINK}!shoutout <message>{NORMAL} to ask the dj to say something on air!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 輸入 {PINK}!shoutout <message>{NORMAL} 來要求DJ說些什麼吧!"
+	}
+	"Advert 9"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Type {PINK}!song{NORMAL} to see what song is currently playing!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 輸入 {PINK}!song{NORMAL} 查看目前播放的歌曲!"
+	}
+	"Advert 10"
+	{
+		"en"			"{GREEN}[FragRadio]{NORMAL} Not hearing any music from the radio? Make sure you have flash installed and your MOTD enabled"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 聽不到音樂嗎? 請確認你已安裝 Flash 並開啟你的 MOTD"
+	}
+	"Enabled1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} The FragRadio plugin has been enabled, you have been auto tuned in."
+		"zho"			"{GREEN}[FragRadio]{RED} FragRadio插件已啟用, 您已自動開啟收音機."
+	}
+	"Disabled1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} The FragRadio plugin has been disabled, you have been auto tuned out."
+		"zho"			"{GREEN}[FragRadio]{RED} FragRadio插件已停用, 您已自動關閉收音機."
+	}
+	"Disabled2"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} The FragRadio Plugin has been disabled."
+		"zho"			"{GREEN}[FragRadio]{RED} FragRadio插件已停用"
+	}
+	"Disabled3"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Stream info gathering has been disabled."
+		"zho"			"{GREEN}[FragRadio]{RED} 獲取播放資訊功能已停用"
+	}
+	"Disabled4"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Interaction commands have been disabled."
+		"zho"			"{GREEN}[FragRadio]{RED} 互動指令已停用"
+	}
+	"Disabled5"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Rating commands have been disabled."
+		"zho"			"{GREEN}[FragRadio]{RED} 評分指令已停用"
+	}
+	"TuningInto1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Thanks for tuning into FragRadio!"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 感謝您收聽FragRadio!"
+	}
+	"TuningInto2"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}has tuned into the radio by typing {RED}!radio {NORMAL}."
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}輸入了 {RED}!radio {NORMAL}打開了收音機."
+	}
+	"Choon1"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks {PINK}{2} is a {LIGHTGREEN}CHOON{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得 {PINK}{2} {LIGHTGREEN}非常好聽{NORMAL}!"
+	}
+	"Choon2"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks the current song is a {LIGHTGREEN}CHOON{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得現在播放的歌{LIGHTGREEN}非常好聽{NORMAL}!"
+	}
+	"Poon1"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks {PINK}{2} is a {RED}POON{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得 {PINK}{2} {RED}難聽到爆{NORMAL}!"
+	}
+	"Poon2"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks the current song is a {RED}POON{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得現在播放的歌{RED}難聽到爆{NORMAL}!"
+	}
+	"Awesome1"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks {PINK}{2} is {LIGHTGREEN}Awesome{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得 {PINK}{2} {LIGHTGREEN}真是太棒了{NORMAL}!"
+	}
+	"Awesome2"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks the current dj is {LIGHTGREEN}Awesome{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得目前線上的DJ真是太棒了!"
+	}
+	"Awesome3"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks {PINK}{2} are {LIGHTGREEN}Awesome{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得 {PINK}{2} {LIGHTGREEN}真是太棒了{NORMAL}!"
+	}
+	"Awesome4"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks the current dj's are {LIGHTGREEN}Awesome{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得目前線上的DJ們{LIGHTGREEN}真是太棒了{NORMAL}!"
+	}
+	"Fail1"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks {PINK}{2} {RED}FAILS{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得 {PINK}{2} {RED}有夠失敗{NORMAL}!"
+	}
+	"Fail2"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks the current dj {RED}FAILS{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得目前線上的DJ{RED}有夠失敗{NORMAL}!"
+	}
+	"Fail3"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks {PINK}{2} {RED}FAIL{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得 {PINK}{2} {RED}有夠失敗{NORMAL}!"
+	}
+	"Fail4"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}thinks the current dj's {RED}FAIL{NORMAL}!"
+		"zho"			"{GREEN}[FragRadio]{PINK} {1} {NORMAL}覺得目前線上的DJ們{RED}有夠失敗{NORMAL}!"
+	}
+	"NowPresenting"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{NORMAL} Now Presenting: {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 線上DJ: {PINK}{1}"
+	}
+	"NowPlaying"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{NORMAL} Now Playing: {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 現正播放: {PINK}{1}"
+	}
+	"NotTunedIn"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{NORMAL} You are not tuned in, type {RED}!radio {NORMAL} to tune in."
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 您還沒有打開您的收音機, 請輸入 {RED}!radio {NORMAL}打開"
+	}
+	"OnlyClients"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{NORMAL} That command can only be used by clients!"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} That command can only be used by clients!"
+	}
+	"CurrentDJ"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{NORMAL} Current DJ: {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 線上DJ: {PINK}{1}"
+	}
+	"CurrentSong"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{NORMAL} Current Song: {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 現正播放: {PINK}{1}"
+	}
+	"NoStreamInfo"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} No stream info has been received yet!"
+		"zho"			"{GREEN}[FragRadio]{RED} 尚未收到播放資訊!"
+	}
+	"Usage1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{NORMAL} Usage: {RED}!request <song>"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 請使用: {RED}!request <song>"
+	}
+	"Usage2"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{NORMAL} Usage: {RED}!shoutout <message>"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 請使用: {RED}!shoutout <message>"
+	}	
+	"Usage3"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{NORMAL} Usage: {RED}!other <message>"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 請使用: {RED}!other <message>"
+	}
+	"Usage4"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{NORMAL} Usage: {RED}!joke <message>"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 請使用: {RED}!joke <message>"
+	}
+	"Usage5"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{NORMAL} Usage: {RED}!competition <message>"
+		"zho"			"{GREEN}[FragRadio]{NORMAL} 請使用: {RED}!competition <message>"
+	}
+	"Request1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Requests cannot be made when AutoDJ is onair"
+		"zho"			"{GREEN}[FragRadio]{RED} 當線上是AutoDJ時無法傳送點播歌曲"
+	}
+	"Request2"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Requests must be more than 8 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的點播必須大於8個字元."
+	}
+	"Request3"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Requests must be less than 255 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的點播必須小於255個字元."
+	}
+	"Request4"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your song request has been sent to {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的點播已傳送給 {PINK}{1}"
+	}
+	"Request5"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your song request has been sent!"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的點播已送出!"
+	}
+	"Shoutout1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Shoutouts cannot be made when AutoDJ is onair"
+		"zho"			"{GREEN}[FragRadio]{RED} 當線上是AutoDJ時無法喊叫"
+	}
+	"Shoutout2"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Shoutouts must be more than 8 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的喊叫必須大於8個字元."
+	}
+	"Shoutout3"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Shoutouts must be less than 255 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的喊叫必須小於255個字元."
+	}
+	"Shoutout4"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your shoutout has been sent to {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的喊叫已傳送給 {PINK}{1}"
+	}
+	"Shoutout5"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your shoutout has been sent!"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的喊叫已送出!"
+	}
+	"Other1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Other content cannot be submitted when AutoDJ is onair"
+		"zho"			"{GREEN}[FragRadio]{RED} 當線上是AutoDJ時無法提交其他內容"
+	}
+	"Other2"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Other content must be more than 8 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的其他內容必須大於8個字元."
+	}
+	"Other3"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Other content must be less than 255 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的其他內容必須小於255個字元."
+	}
+	"Other4"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your content has been sent to {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的其他內容已傳送給 {PINK}{1}"
+	}
+	"Other5"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your content has been sent!"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的其他內容已送出!"
+	}
+	"Joke1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Cannot submit jokes when AutoDJ is onair."
+		"zho"			"{GREEN}[FragRadio]{RED} 當線上是AutoDJ時無法提交笑話"
+	}
+	"Joke2"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Jokes must be more than 4 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的笑話必須大於8個字元."
+	}
+	"Joke3"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Jokes must be less than 255 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的笑話必須小於255個字元."
+	}
+	"Joke4"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your Joke has been sent to {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的笑話已傳送給 {PINK}{1}"
+	}
+	"Joke5"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your Joke has been sent!"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的笑話已送出!"
+	}
+	"Competition1"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Cannot enter competition when AutoDJ is onair."
+		"zho"			"{GREEN}[FragRadio]{RED} 當線上是AutoDJ時無法加入競爭"
+	}
+	"Competition2"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Entries must be more than 4 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的參加登記必須大於8個字元."
+	}
+	"Competition3"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{RED} Entries must be less than 255 characters."
+		"zho"			"{GREEN}[FragRadio]{RED} 您的參加登記必須小於255個字元."
+	}
+	"Competition4"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your Competition entry has been sent to {PINK}{1}"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的參加登記已傳送給 {PINK}{1}"
+	}
+	"Competition5"
+	{
+		"#format"		""
+		"en"			"{GREEN}[FragRadio]{LIGHTGREEN} Your Competition entry has been sent!"
+		"zho"			"{GREEN}[FragRadio]{LIGHTGREEN} 您的參加登記已送出!"
+	}
+//*************************************************************************************************************
+//***********************************************   WARNING   *************************************************
+//**************************************   NO COLORS  BELOW THIS LINE   ***************************************
+//*************************************************************************************************************
+	"RadioMenuTitle1"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"FragRadio Menu\n \nDJ: {1}\nSong: {2}\n \n"
+		"zho"			"FragRadio 選單\n \nDJ: {1}\n現正播放: {2}\n \n"
+	}
+	"RadioMenuTitle2"
+	{
+		"#format"		""
+		"en"			"FragRadio Menu\n \n"
+		"zho"			"FragRadio 選單\n \n"
+	}
+	"Volume100"
+	{
+		"#format"		""
+		"en"			"100% Volume"
+		"zho"			"音量 100%"
+	}
+	"Volume80"
+	{
+		"#format"		""
+		"en"			"80% Volume"
+		"zho"			"音量 80%"
+	}
+	"Volume40"
+	{
+		"#format"		""
+		"en"			"40% Volume"
+		"zho"			"音量 40%"
+	}
+	"Volume20"
+	{
+		"#format"		""
+		"en"			"20% Volume"
+		"zho"			"音量 20%"
+	}
+	"Volume10"
+	{
+		"#format"		""
+		"en"			"10% Volume"
+		"zho"			"音量 10%"
+	}
+	"Volume5"
+	{
+		"#format"		""
+		"en"			"5% Volume"
+		"zho"			"音量 5%"
+	}
+	"Volume0"
+	{
+		"#format"		""
+		"en"			"Stop Listening"
+		"zho"			"停止收聽"
+	}
+}
