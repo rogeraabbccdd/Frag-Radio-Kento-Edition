@@ -18,61 +18,62 @@
 	
 ****************************************************************************/
 
-#define PLUGINVERSION "1.4.7.Akami.1"
+#define PLUGINVERSION "1.4.8.Akami.1"
 
 #pragma semicolon 1
 #include <sourcemod>
 #include <socket>
 #include <base64>
 #include <kento_csgocolors>
+#include <fragradio>
 
-new Handle:g_hCvarPluginStatus = INVALID_HANDLE;
-new Handle:g_hCvarInteract = INVALID_HANDLE;
-new Handle:g_hCvarRating = INVALID_HANDLE;
-new Handle:g_hCvarWelcomeAdvert = INVALID_HANDLE;
-new Handle:g_hCvarAdverts = INVALID_HANDLE;
-new Handle:g_hCvarAdvertsInterval = INVALID_HANDLE;
-new Handle:g_hCvarGetStreamInfo = INVALID_HANDLE;
-new Handle:g_hCvarStreamInterval = INVALID_HANDLE;
-new Handle:g_hCvarStreamHost = INVALID_HANDLE;
-new Handle:g_hCvarStreamPort = INVALID_HANDLE;
-new Handle:g_hCvarStreamGamePath = INVALID_HANDLE;
-new Handle:g_hCvarStreamUpdatePath = INVALID_HANDLE;
-new Handle:g_hCvarStreamStatsPath = INVALID_HANDLE;
-new Handle:g_hCvarWebPlayerScript = INVALID_HANDLE;
-new Handle:g_hCvarServerUpdateInterval = INVALID_HANDLE;
+Handle g_hCvarPluginStatus = null;
+Handle g_hCvarInteract = null;
+Handle g_hCvarRating = null;
+Handle g_hCvarWelcomeAdvert = null;
+Handle g_hCvarAdverts = null;
+Handle g_hCvarAdvertsInterval = null;
+Handle g_hCvarGetStreamInfo = null;
+Handle g_hCvarStreamInterval = null;
+Handle g_hCvarStreamHost = null;
+Handle g_hCvarStreamPort = null;
+Handle g_hCvarStreamGamePath = null;
+Handle g_hCvarStreamUpdatePath = null;
+Handle g_hCvarStreamStatsPath = null;
+Handle g_hCvarWebPlayerScript = null;
+Handle g_hCvarServerUpdateInterval = null;
 
-new Handle:g_hAdvertsTimer = INVALID_HANDLE;
-new Handle:g_hStreamTimer = INVALID_HANDLE;
-new Handle:g_hServerTimer = INVALID_HANDLE;
+Handle g_hAdvertsTimer = null;
+Handle g_hStreamTimer = null;
+Handle g_hServerTimer = null;
 
-new String:g_sDataReceived[5120];
-new String:g_sDJ[512];
-new String:g_sSong[512];
+char g_sDataReceived[5120];
+char g_sDJ[512];
+char g_sSong[512];
 
-new bool:PluginEnabled;
-new bool:InteractEnabled;
-new bool:RatingEnabled;
-new bool:WelcomeAdvertsEnabled;
-new bool:AdvertsEnabled;
-new Float:AdvertsInterval;
-new bool:GetStreamInfo;
-new Float:StreamInterval;
-new String:StreamHost[512];
-new StreamPort;
-new String:StreamGamePath[512];
-new String:StreamUpdatePath[512];
-new String:StreamStatsPath[512];
-new String:WebPlayerScript[512];
-new Float:ServerUpdateInterval;
-new bool:isTuned[100];
-new tunedVol[100];
+bool PluginEnabled;
+bool InteractEnabled;
+bool RatingEnabled;
+bool WelcomeAdvertsEnabled;
+bool AdvertsEnabled;
+float AdvertsInterval;
+bool GetStreamInfo;
+float StreamInterval;
+char StreamHost[512];
+int StreamPort;
+char StreamGamePath[512];
+char StreamUpdatePath[512];
+char StreamStatsPath[512];
+char WebPlayerScript[512];
+float ServerUpdateInterval;
+bool isTuned[100];
+int tunedVol[100];
 
-public Plugin:myinfo = {
-	name = "FragRadio SourceMod Plugin",
-	author = "BomBom - Dunceantix Edited By Akami Studio",
-	description = "FragRadio SourceMod Plugin",
-	version = PLUGINVERSION,
+public Plugin myinfo =  {
+	name = "FragRadio SourceMod Plugin", 
+	author = "BomBom - Dunceantix Edited By Akami Studio", 
+	description = "FragRadio SourceMod Plugin", 
+	version = PLUGINVERSION, 
 	url = "http://www.fragradio.com/"
 }
 
@@ -103,7 +104,7 @@ public OnPluginStart() {
 	
 	g_hCvarStreamInterval = CreateConVar("fr_streaminfo_interval", "15.0", "DO NOT CHANGE OR YOUR SERVER IP WILL BE BANNED! Sets the time between stream info updates.", FCVAR_NOTIFY);
 	HookConVarChange(g_hCvarStreamInterval, Cvar_Changed);
-
+	
 	g_hCvarStreamHost = CreateConVar("fr_stream_host", "fragradio.com", "Sets the website hostname used to send and retrieve info.", FCVAR_NOTIFY);
 	HookConVarChange(g_hCvarStreamHost, Cvar_Changed);
 	
@@ -163,21 +164,37 @@ public OnClientDisconnect(client) {
 }
 
 stock ClearTimer(&Handle:timer) {
-	if (timer != INVALID_HANDLE) {
+	if (timer != null) {
 		KillTimer(timer);
 	}
 	
-	timer = INVALID_HANDLE;
+	timer = null;
 }
 
-public Action:WelcomeAdvert(any:client) {
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	CreateNative("FR_IsPlayerListening", Native_IsPlayerListening);
+	return APLRes_Success;
+}
+
+public int Native_IsPlayerListening(Handle plugin, int numParams)
+{
+	if (isTuned[GetNativeCell(1)]) {
+		return true;
+	} else {
+		return false;
+	}
+	
+}
+
+public Action WelcomeAdvert(any:client) {
 	CPrintToChat(client, "%t", "WelcomeAdvert");
 }
 
-public Action:Advertise(Handle:timer) 
+public Action Advertise(Handle timer)
 {
-	switch(GetRandomInt(1,10))
-	{ 
+	switch (GetRandomInt(1, 10))
+	{
 		case 1:
 		{
 			CPrintToChatAll("%t", "Advert 1");
@@ -227,13 +244,13 @@ public OnMapEnd() {
 	ClearTimer(g_hServerTimer);
 }
 
-public Cvar_Changed(Handle:convar, const String:oldValue[], const String:newValue[]) {
+public Cvar_Changed(Handle convar, const char[] oldValue, const char[] newValue) {
 	OnConfigsExecuted();
 }
 
-public Cvar_Change_Enabled(Handle:convar, const String:oldValue[], const String:newValue[]) {
+public Cvar_Change_Enabled(Handle convar, const char[] oldValue, const char[] newValue) {
 	PluginEnabled = GetConVarBool(g_hCvarPluginStatus);
-
+	
 	if (PluginEnabled) {
 		if (AdvertsEnabled) {
 			g_hAdvertsTimer = CreateTimer(AdvertsInterval, Advertise, 0, TIMER_REPEAT);
@@ -247,12 +264,12 @@ public Cvar_Change_Enabled(Handle:convar, const String:oldValue[], const String:
 			g_hServerTimer = CreateTimer(ServerUpdateInterval, UpdateServerList, 0, TIMER_REPEAT);
 		}
 		
-		for (new i=1; i<= MaxClients; i++) {
+		for (new i = 1; i <= MaxClients; i++) {
 			if (IsClientConnected(i) && IsClientInGame(i)) {
 				if (isTuned[i]) {
 					StreamPanel("Thanks for tuning into FragRadio!", "about:blank", i);
 					
-					decl String:url[256];
+					char url[256];
 					FormatEx(url, sizeof(url), "http://%s/%s?vol=%s", StreamHost, WebPlayerScript, tunedVol[i]);
 					StreamPanel("You are tuned into FragRadio!", url, i);
 					
@@ -265,7 +282,7 @@ public Cvar_Change_Enabled(Handle:convar, const String:oldValue[], const String:
 		ClearTimer(g_hStreamTimer);
 		ClearTimer(g_hServerTimer);
 		
-		for (new i=1; i<= MaxClients; i++) {
+		for (new i = 1; i <= MaxClients; i++) {
 			if (IsClientConnected(i) && IsClientInGame(i)) {
 				if (isTuned[i]) {
 					StreamPanel("Thanks for tuning into FragRadio!", "about:blank", i);
@@ -276,7 +293,7 @@ public Cvar_Change_Enabled(Handle:convar, const String:oldValue[], const String:
 	}
 }
 
-public Cvar_Change_Adverts(Handle:convar, const String:oldValue[], const String:newValue[]) {
+public Cvar_Change_Adverts(Handle convar, const char[] oldValue, const char[] newValue) {
 	AdvertsEnabled = GetConVarBool(g_hCvarAdverts);
 	
 	if (AdvertsEnabled) {
@@ -286,7 +303,7 @@ public Cvar_Change_Adverts(Handle:convar, const String:oldValue[], const String:
 	}
 }
 
-public Cvar_Change_StreamInfo(Handle:convar, const String:oldValue[], const String:newValue[]) {
+public Cvar_Change_StreamInfo(Handle convar, const char[] oldValue, const char[] newValue) {
 	GetStreamInfo = GetConVarBool(g_hCvarGetStreamInfo);
 	
 	if (GetStreamInfo) {
@@ -333,15 +350,15 @@ public OnConfigsExecuted() {
 	}
 }
 
-public Action:UpdateStreamInfo(Handle:timer) {
+public Action UpdateStreamInfo(Handle timer) {
 	Server_Receive();
 }
 
-public Action:UpdateServerList(Handle:timer) {
+public Action UpdateServerList(Handle timer) {
 	Server_Send();
 }
 
-public Cmd_Check(String:type[], client) {
+public Cmd_Check(char[] type, client) {
 	if (client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client)) {
 		if (!PluginEnabled) {
 			CReplyToCommand(client, "%t", "Disabled2");
@@ -371,32 +388,32 @@ public Cmd_Check(String:type[], client) {
 	return true;
 }
 
-public Action:Cmd_ShowDJ(client, args) {
-	if (Cmd_Check("streaminfo", client)) {		
+public Action Cmd_ShowDJ(client, args) {
+	if (Cmd_Check("streaminfo", client)) {
 		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
 			CReplyToCommand(client, "%t", "CurrentDJ", g_sDJ);
 		} else {
 			CReplyToCommand(client, "%t", "NoStreamInfo");
 		}
 	}
-
+	
 	return Plugin_Handled;
 }
 
-public Action:Cmd_ShowSong(client, args) {
-	if (Cmd_Check("streaminfo", client)) {		
+public Action Cmd_ShowSong(client, args) {
+	if (Cmd_Check("streaminfo", client)) {
 		if (GetStreamInfo && !StrEqual(g_sSong, "")) {
 			CReplyToCommand(client, "%t", "CurrentSong", g_sSong);
 		} else {
 			CReplyToCommand(client, "%t", "NoStreamInfo");
 		}
 	}
-
+	
 	return Plugin_Handled;
 }
 
-public StreamPanel(String:title[], String:url[], client) {
-	new Handle:Radio = CreateKeyValues("data");
+public StreamPanel(char[] title, char[] url, client) {
+	Handle Radio = CreateKeyValues("data");
 	KvSetString(Radio, "title", title);
 	KvSetString(Radio, "type", "2");
 	KvSetString(Radio, "msg", url);
@@ -404,10 +421,10 @@ public StreamPanel(String:title[], String:url[], client) {
 	CloseHandle(Radio);
 }
 
-public RadioMenuHandle(Handle:menu, MenuAction:action, client, choice) {
+public RadioMenuHandle(Handle menu, MenuAction action, int client, int choice) {
 	if (action == MenuAction_Select) {
-		new String:info[32];
-		new bool:found = GetMenuItem(menu, choice, info, sizeof(info));
+		char info[32];
+		bool found = GetMenuItem(menu, choice, info, sizeof(info));
 		
 		if (found) {
 			if (StringToInt(info) == 0) {
@@ -418,7 +435,7 @@ public RadioMenuHandle(Handle:menu, MenuAction:action, client, choice) {
 				CPrintToChat(client, "%t", "TuningInto1");
 			} else {
 				if (isTuned[client] != true) {
-					decl String:name[128];
+					char name[128];
 					GetClientName(client, name, sizeof(name));
 					CPrintToChatAll("%t", "TuningInto2", name);
 				}
@@ -428,7 +445,7 @@ public RadioMenuHandle(Handle:menu, MenuAction:action, client, choice) {
 				isTuned[client] = true;
 				tunedVol[client] = StringToInt(info);
 				
-				decl String:url[256];			
+				char url[256];
 				FormatEx(url, sizeof(url), "http://%s/%s?vol=%s", StreamHost, WebPlayerScript, info);
 				StreamPanel("You are tuned into FragRadio!", url, client);
 			}
@@ -438,18 +455,18 @@ public RadioMenuHandle(Handle:menu, MenuAction:action, client, choice) {
 	}
 }
 
-public Action:Cmd_RadioMenu(client, args) {
+public Action Cmd_RadioMenu(client, args) {
 	if (!PluginEnabled) {
 		CReplyToCommand(client, "%t", "Disabled2");
 		return Plugin_Handled;
 	}
 	
 	if (args > 1) {
-	
-	return Plugin_Handled;
+		
+		return Plugin_Handled;
 	}
 	
-	new Handle:menu = CreateMenu(RadioMenuHandle);
+	Handle menu = CreateMenu(RadioMenuHandle);
 	
 	if (GetStreamInfo && !StrEqual(g_sDJ, "") && !StrEqual(g_sSong, "")) {
 		SetMenuTitle(menu, "%t", "RadioMenuTitle1", g_sDJ, g_sSong);
@@ -457,57 +474,57 @@ public Action:Cmd_RadioMenu(client, args) {
 		SetMenuTitle(menu, "%t", "RadioMenuTitle2");
 	}
 	
-	decl String:Volume100[32];
+	char Volume100[32];
 	Format(Volume100, sizeof(Volume100), "%t", "Volume100");
 	AddMenuItem(menu, "100", Volume100);
 	
-	decl String:Volume80[32];
+	char Volume80[32];
 	Format(Volume80, sizeof(Volume80), "%t", "Volume80");
 	AddMenuItem(menu, "80", Volume80);
 	
-	decl String:Volume40[32];
+	char Volume40[32];
 	Format(Volume40, sizeof(Volume40), "%t", "Volume40");
 	AddMenuItem(menu, "40", Volume40);
 	
-	decl String:Volume20[32];
+	char Volume20[32];
 	Format(Volume20, sizeof(Volume20), "%t", "Volume20");
 	AddMenuItem(menu, "20", Volume20);
 	
-	decl String:Volume10[32];
+	char Volume10[32];
 	Format(Volume10, sizeof(Volume10), "%t", "Volume10");
 	AddMenuItem(menu, "10", Volume10);
 	
-	decl String:Volume5[32];
+	char Volume5[32];
 	Format(Volume5, sizeof(Volume5), "%t", "Volume5");
 	AddMenuItem(menu, "5", Volume5);
 	
 	if (isTuned[client]) {
-		decl String:Volume0[32];
+		char Volume0[32];
 		Format(Volume0, sizeof(Volume0), "%t", "Volume0");
 		AddMenuItem(menu, "0", Volume0);
 	}
 	
 	SetMenuExitButton(menu, true);
 	DisplayMenu(menu, client, 20);
- 
+	
 	return Plugin_Handled;
 }
 
-public Action:Cmd_Request(client, args) {
-	if (Cmd_Check("interact", client)) {	
+public Action Cmd_Request(client, args) {
+	if (Cmd_Check("interact", client)) {
 		if (args < 1) {
 			CReplyToCommand(client, "%t", "Usage1");
 			return Plugin_Handled;
 		}
 		
-		decl String:request[256];
+		char request[256];
 		GetCmdArgString(request, sizeof(request));
 		
 		if (StrEqual(g_sDJ, "AutoDJ")) {
-		CReplyToCommand(client, "%t", "Request1");
-		return Plugin_Handled;
+			CReplyToCommand(client, "%t", "Request1");
+			return Plugin_Handled;
 		}
-				
+		
 		if (strlen(request) < 8) {
 			CReplyToCommand(client, "%t", "Request2");
 			return Plugin_Handled;
@@ -528,14 +545,14 @@ public Action:Cmd_Request(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_Shoutout(client, args) {
-	if (Cmd_Check("interact", client)) {		
+public Action Cmd_Shoutout(client, args) {
+	if (Cmd_Check("interact", client)) {
 		if (args < 1) {
 			CReplyToCommand(client, "%t", "Usage2");
 			return Plugin_Handled;
 		}
-
-		decl String:shoutout[256];
+		
+		char shoutout[256];
 		GetCmdArgString(shoutout, sizeof(shoutout));
 		
 		if (StrEqual(g_sDJ, "AutoDJ")) {
@@ -563,14 +580,14 @@ public Action:Cmd_Shoutout(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_Other(client, args) {
-	if (Cmd_Check("interact", client)) {		
+public Action Cmd_Other(client, args) {
+	if (Cmd_Check("interact", client)) {
 		if (args < 1) {
 			CReplyToCommand(client, "%t", "Usage3");
 			return Plugin_Handled;
 		}
-
-		decl String:other[256];
+		
+		char other[256];
 		GetCmdArgString(other, sizeof(other));
 		
 		if (StrEqual(g_sDJ, "AutoDJ")) {
@@ -598,14 +615,14 @@ public Action:Cmd_Other(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_Joke(client, args) {
-	if (Cmd_Check("interact", client)) {		
+public Action Cmd_Joke(client, args) {
+	if (Cmd_Check("interact", client)) {
 		if (args < 1) {
 			CReplyToCommand(client, "%t", "Usage4");
 			return Plugin_Handled;
 		}
-
-		decl String:joke[256];
+		
+		char joke[256];
 		GetCmdArgString(joke, sizeof(joke));
 		
 		if (StrEqual(g_sDJ, "AutoDJ")) {
@@ -613,7 +630,7 @@ public Action:Cmd_Joke(client, args) {
 			return Plugin_Handled;
 		}
 		
-		if (strlen(joke) <4) {
+		if (strlen(joke) < 4) {
 			CReplyToCommand(client, "%t", "Joke2");
 			return Plugin_Handled;
 		} else if (strlen(joke) > 255) {
@@ -633,14 +650,14 @@ public Action:Cmd_Joke(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_Competition(client, args) {
-	if (Cmd_Check("interact", client)) {		
+public Action Cmd_Competition(client, args) {
+	if (Cmd_Check("interact", client)) {
 		if (args < 1) {
 			CReplyToCommand(client, "%t", "Usage5");
 			return Plugin_Handled;
 		}
-
-		decl String:competition[256];
+		
+		char competition[256];
 		GetCmdArgString(competition, sizeof(competition));
 		
 		if (StrEqual(g_sDJ, "AutoDJ")) {
@@ -648,7 +665,7 @@ public Action:Cmd_Competition(client, args) {
 			return Plugin_Handled;
 		}
 		
-		if (strlen(competition) <4) {
+		if (strlen(competition) < 4) {
 			CReplyToCommand(client, "%t", "Competition2");
 			return Plugin_Handled;
 		} else if (strlen(competition) > 255) {
@@ -668,9 +685,9 @@ public Action:Cmd_Competition(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_Choon(client, args) {
-	if (Cmd_Check("rating", client)) {		
-		decl String:name[128];
+public Action Cmd_Choon(client, args) {
+	if (Cmd_Check("rating", client)) {
+		char name[128];
 		GetClientName(client, name, sizeof(name));
 		
 		if (GetStreamInfo && !StrEqual(g_sSong, "")) {
@@ -685,9 +702,9 @@ public Action:Cmd_Choon(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_Poon(client, args) {
-	if (Cmd_Check("rating", client)) {		
-		decl String:name[128];
+public Action Cmd_Poon(client, args) {
+	if (Cmd_Check("rating", client)) {
+		char name[128];
 		GetClientName(client, name, sizeof(name));
 		
 		if (GetStreamInfo && !StrEqual(g_sSong, "")) {
@@ -702,9 +719,9 @@ public Action:Cmd_Poon(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_djFTW(client, args) {
-	if (Cmd_Check("rating", client)) {		
-		decl String:name[128];
+public Action Cmd_djFTW(client, args) {
+	if (Cmd_Check("rating", client)) {
+		char name[128];
 		GetClientName(client, name, sizeof(name));
 		
 		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
@@ -719,9 +736,9 @@ public Action:Cmd_djFTW(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_djFTL(client, args) {
-	if (Cmd_Check("rating", client)) {		
-		decl String:name[128];
+public Action Cmd_djFTL(client, args) {
+	if (Cmd_Check("rating", client)) {
+		char name[128];
 		GetClientName(client, name, sizeof(name));
 		
 		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
@@ -736,9 +753,9 @@ public Action:Cmd_djFTL(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_djsFTW(client, args) {
-	if (Cmd_Check("rating", client)) {		
-		decl String:name[128];
+public Action Cmd_djsFTW(client, args) {
+	if (Cmd_Check("rating", client)) {
+		char name[128];
 		GetClientName(client, name, sizeof(name));
 		
 		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
@@ -753,9 +770,9 @@ public Action:Cmd_djsFTW(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Cmd_djsFTL(client, args) {
-	if (Cmd_Check("rating", client)) {		
-		decl String:name[128];
+public Action Cmd_djsFTL(client, args) {
+	if (Cmd_Check("rating", client)) {
+		char name[128];
 		GetClientName(client, name, sizeof(name));
 		
 		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
@@ -770,61 +787,61 @@ public Action:Cmd_djsFTL(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Server_Send() {
-	new Handle:dp = CreateDataPack();
+public Action Server_Send() {
+	Handle dp = CreateDataPack();
 	
 	WritePackString(dp, "serverinfo");
 	
-	decl String:serverip[32];
-	decl String:serverport[32];
-	decl String:serverinfo[64];
-		
+	char serverip[32];
+	char serverport[32];
+	char serverinfo[64];
+	
 	GetConVarString(FindConVar("hostip"), serverip, sizeof(serverip));
-	new hostip = GetConVarInt(FindConVar("hostip"));	
+	int hostip = GetConVarInt(FindConVar("hostip"));
 	FormatEx(serverip, sizeof(serverip), "%u.%u.%u.%u", (hostip >> 24) & 0x000000FF, (hostip >> 16) & 0x000000FF, (hostip >> 8) & 0x000000FF, hostip & 0x000000FF);
 	GetConVarString(FindConVar("hostport"), serverport, sizeof(serverport));
 	FormatEx(serverinfo, sizeof(serverinfo), "%s:%s", serverip, serverport);
 	WritePackString(dp, serverinfo);
 	
-	new Handle:socket = SocketCreate(SOCKET_TCP, OnSocketError);
+	Handle socket = SocketCreate(SOCKET_TCP, OnSocketError);
 	SocketSetArg(socket, dp);
 	SocketConnect(socket, OnSocketConnected, OnSocketReceive, OnSocketDisconnected, StreamHost, StreamPort);
 }
 
-public Action:Server_Receive() {
-	new Handle:dp = CreateDataPack();
+public Action Server_Receive() {
+	Handle dp = CreateDataPack();
 	
 	WritePackString(dp, "streaminfo");
 	
-	new Handle:socket = SocketCreate(SOCKET_TCP, OnSocketError);
+	Handle socket = SocketCreate(SOCKET_TCP, OnSocketError);
 	SocketSetArg(socket, dp);
 	SocketConnect(socket, OnSocketConnected, OnSocketReceive, OnSocketDisconnected, StreamHost, StreamPort);
 }
 
-public Action:Client_Send(String:type[], String:message[], client) {
-	new Handle:dp = CreateDataPack();
+public Action Client_Send(char[] type, char[] message, client) {
+	Handle dp = CreateDataPack();
 	
 	WritePackString(dp, type);
 	WritePackString(dp, message);
 	
-	decl String:ip[32];
+	char ip[32];
 	GetClientIP(client, ip, sizeof(ip), true);
 	WritePackString(dp, ip);
 	
-	decl String:name[128];
+	char name[128];
 	GetClientName(client, name, sizeof(name));
 	WritePackString(dp, name);
 	
-	decl String:steamid[64];
+	char steamid[64];
 	GetClientAuthId(client, AuthId_Steam3, steamid, sizeof(steamid));
 	WritePackString(dp, steamid);
 	
-	decl String:serverip[32];
-	decl String:serverport[32];
-	decl String:serverinfo[64];
-		
+	char serverip[32];
+	char serverport[32];
+	char serverinfo[64];
+	
 	GetConVarString(FindConVar("hostip"), serverip, sizeof(serverip));
-	new hostip = GetConVarInt(FindConVar("hostip"));	
+	int hostip = GetConVarInt(FindConVar("hostip"));
 	FormatEx(serverip, sizeof(serverip), "%u.%u.%u.%u", (hostip >> 24) & 0x000000FF, (hostip >> 16) & 0x000000FF, (hostip >> 8) & 0x000000FF, hostip & 0x000000FF);
 	GetConVarString(FindConVar("hostport"), serverport, sizeof(serverport));
 	FormatEx(serverinfo, sizeof(serverinfo), "%s:%s", serverip, serverport);
@@ -832,55 +849,55 @@ public Action:Client_Send(String:type[], String:message[], client) {
 	WritePackString(dp, serverinfo);
 	WritePackCell(dp, client);
 	
-	new Handle:socket = SocketCreate(SOCKET_TCP, OnSocketError);
+	Handle socket = SocketCreate(SOCKET_TCP, OnSocketError);
 	SocketSetArg(socket, dp);
 	SocketConnect(socket, OnSocketConnected, OnSocketReceive, OnSocketDisconnected, StreamHost, StreamPort);
 }
 
-public OnSocketConnected(Handle:socket, any:dp) {	
+public OnSocketConnected(Handle socket, any:dp) {
 	ResetPack(dp);
 	
-	decl String:type[32];
+	char type[32];
 	ReadPackString(dp, type, sizeof(type));
 	
-	decl String:socketStr[1024];
+	char socketStr[1024];
 	
 	if (StrEqual(type, "serverinfo")) {
-		decl String:ip[64];
+		char ip[64];
 		ReadPackString(dp, ip, sizeof(ip));
-		decl String:eip[128];
+		char eip[128];
 		EncodeBase64(eip, sizeof(eip), ip);
-	
+		
 		FormatEx(socketStr, sizeof(socketStr), "GET %s?ip=%s HTTP/1.0\r\nHost: %s\r\nConnection: close\r\n\r\n", StreamUpdatePath, eip, StreamHost);
 	} else if (StrEqual(type, "streaminfo")) {
 		FormatEx(socketStr, sizeof(socketStr), "GET %s HTTP/1.0\r\nHost: %s\r\nConnection: close\r\n\r\n", StreamStatsPath, StreamHost);
 	} else {
-		decl String:etype[64];
+		char etype[64];
 		EncodeBase64(etype, sizeof(etype), type);
-	
-		decl String:message[256];
+		
+		char message[256];
 		ReadPackString(dp, message, sizeof(message));
-		decl String:emessage[512];
+		char emessage[512];
 		EncodeBase64(emessage, sizeof(emessage), message);
 		
-		decl String:ip[64];
+		char ip[64];
 		ReadPackString(dp, ip, sizeof(ip));
-		decl String:eip[128];
+		char eip[128];
 		EncodeBase64(eip, sizeof(eip), ip);
 		
-		decl String:name[128];
+		char name[128];
 		ReadPackString(dp, name, sizeof(name));
-		decl String:ename[256];
+		char ename[256];
 		EncodeBase64(ename, sizeof(ename), name);
 		
-		decl String:steamid[64];
+		char steamid[64];
 		ReadPackString(dp, steamid, sizeof(steamid));
-		decl String:esteamid[128];
+		char esteamid[128];
 		EncodeBase64(esteamid, sizeof(esteamid), steamid);
 		
-		decl String:serverinfo[64];
+		char serverinfo[64];
 		ReadPackString(dp, serverinfo, sizeof(serverinfo));
-		decl String:eserverinfo[128];
+		char eserverinfo[128];
 		EncodeBase64(eserverinfo, sizeof(eserverinfo), serverinfo);
 		
 		FormatEx(socketStr, sizeof(socketStr), "GET %s?type=%s&content=%s&playersip=%s&playersname=%s&playerssteam=%s&serversip=%s HTTP/1.0\r\nHost: %s\r\nConnection: close\r\n\r\n", StreamGamePath, etype, emessage, eip, ename, esteamid, eserverinfo, StreamHost);
@@ -889,10 +906,10 @@ public OnSocketConnected(Handle:socket, any:dp) {
 	SocketSend(socket, socketStr);
 }
 
-public OnSocketReceive(Handle:socket, String:receiveData[], const dataSize, any:dp) {
+public OnSocketReceive(Handle socket, char[] receiveData, const dataSize, any:dp) {
 	ResetPack(dp);
 	
-	decl String:type[32];
+	char type[32];
 	ReadPackString(dp, type, sizeof(type));
 	
 	if (StrEqual(type, "streaminfo")) {
@@ -900,44 +917,44 @@ public OnSocketReceive(Handle:socket, String:receiveData[], const dataSize, any:
 	}
 }
 
-public OnSocketDisconnected(Handle:socket, any:dp) {
+public OnSocketDisconnected(Handle socket, any dp) {
 	ResetPack(dp);
 	
-	decl String:type[32];
+	char type[32];
 	ReadPackString(dp, type, sizeof(type));
 	
-	if (StrEqual(type, "streaminfo")) {		
-		new pos = StrContains(g_sDataReceived, "INFO");
+	if (StrEqual(type, "streaminfo")) {
+		int pos = StrContains(g_sDataReceived, "INFO");
 		
 		if (pos > 0) {
-			decl String:streaminfo[5120];
+			char streaminfo[5120];
 			
 			strcopy(streaminfo, sizeof(streaminfo), g_sDataReceived[pos - 1]);
 			
-			new String:file[512];
+			char file[512];
 			BuildPath(Path_SM, file, 512, "configs/fragradio_stream_info.txt");
-
-			new Handle:hFile = OpenFile(file, "wb");
+			
+			Handle hFile = OpenFile(file, "wb");
 			WriteFileString(hFile, streaminfo, false);
 			CloseHandle(hFile);
 			
-			new Handle:Info = CreateKeyValues("INFO");
+			Handle Info = CreateKeyValues("INFO");
 			FileToKeyValues(Info, file);
 			
 			DeleteFile(file);
 			
-			if (KvJumpToKey(Info, "FragRadio"))	{
-				decl String:dj[512];
-				decl String:song[512];
+			if (KvJumpToKey(Info, "FragRadio")) {
+				char dj[512];
+				char song[512];
 				KvGetString(Info, "DJ", dj, sizeof(dj), "Unknown");
 				KvGetString(Info, "SONG", song, sizeof(song), "Unknown");
 				
-				if(!StrEqual(dj, g_sDJ)) {
+				if (!StrEqual(dj, g_sDJ)) {
 					g_sDJ = dj;
 					CPrintToChatAll("%t", "NowPresenting", g_sDJ);
 				}
-
-				if(!StrEqual(song, g_sSong)) {
+				
+				if (!StrEqual(song, g_sSong)) {
 					g_sSong = song;
 					CPrintToChatAll("%t", "NowPlaying", g_sSong);
 				}
@@ -946,14 +963,14 @@ public OnSocketDisconnected(Handle:socket, any:dp) {
 			CloseHandle(Info);
 		}
 	}
-
-	CloseHandle(dp);
-	CloseHandle(socket);
-}
-
-public OnSocketError(Handle:socket, const errorType, const errorNum, any:dp) {
-	LogError("[FragRadio] Socket error %d (errno %d)", errorType, errorNum);
 	
 	CloseHandle(dp);
 	CloseHandle(socket);
 }
+
+public OnSocketError(Handle socket, const errorType, const errorNum, any:dp) {
+	LogError("[FragRadio] Socket error %d (errno %d)", errorType, errorNum);
+	
+	CloseHandle(dp);
+	CloseHandle(socket);
+} 
