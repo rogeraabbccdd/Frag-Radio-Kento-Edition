@@ -6,3 +6,6 @@ Improved version of [FragRadio](http://fragradio.com/) sourcemod plugin
 * Traditional Chinese Translation
 * Random Advert
 * Auto Generate Config at cfg/sourcemod/plugin.akami_fragradio.cfg
+
+##Special Thanks
+* [Poheart](https://github.com/Poheart) - For his new Sourcemod syntax + native update.
