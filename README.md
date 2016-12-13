@@ -9,3 +9,6 @@ Improved version of [FragRadio](http://fragradio.com/) sourcemod plugin
 
 ##Special Thanks
 * [Poheart](https://github.com/Poheart) - For his new Sourcemod syntax + native update.
+
+##Donate
+If you apreciate my work, you can donate me via [steam trade offer](https://steamcommunity.com/tradeoffer/new/?partner=52559891&token=ADe-707J)
