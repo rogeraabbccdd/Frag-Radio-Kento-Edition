@@ -18,7 +18,7 @@
 	
 ****************************************************************************/
 
-#define PLUGINVERSION "1.4.8.Akami.1"
+#define PLUGINVERSION "1.4.8.Kento.2"
 
 #pragma semicolon 1
 #include <sourcemod>
@@ -26,6 +26,9 @@
 #include <base64>
 #include <kento_csgocolors>
 #include <fragradio>
+#include <clientprefs>
+
+//#pragma newdecls required
 
 Handle g_hCvarPluginStatus = null;
 Handle g_hCvarInteract = null;
@@ -66,18 +69,24 @@ char StreamUpdatePath[512];
 char StreamStatsPath[512];
 char WebPlayerScript[512];
 float ServerUpdateInterval;
-bool isTuned[100];
-int tunedVol[100];
+bool isTuned[MAXPLAYERS + 1];
+int tunedVol[MAXPLAYERS + 1];
+
+// Cookies
+bool AutoTuned[MAXPLAYERS + 1];
+Handle VolCookie;
+Handle AutoCookie;
+
 
 public Plugin myinfo =  {
 	name = "FragRadio SourceMod Plugin", 
-	author = "BomBom - Dunceantix Edited By Akami Studio", 
+	author = "BomBom - Dunceantix Edited By Kento From Akami Studio & Poheart", 
 	description = "FragRadio SourceMod Plugin", 
 	version = PLUGINVERSION, 
 	url = "http://www.fragradio.com/"
 }
 
-public OnPluginStart() {
+public void OnPluginStart() {
 	
 	AutoExecConfig();
 	
@@ -150,21 +159,54 @@ public OnPluginStart() {
 	RegConsoleCmd("sm_other", Cmd_Other);
 	RegConsoleCmd("sm_o", Cmd_Other);
 	
-	LoadTranslations("akami.fragradio.phrases");
+	LoadTranslations("kento.fragradio.phrases");
+	
+	// Cookie
+	VolCookie = RegClientCookie("fragradio_vol", "Fragradio Volume", CookieAccess_Protected);
+	AutoCookie = RegClientCookie("fragradio_auto", "Auto Tune Fragradio", CookieAccess_Protected);
 }
 
-public OnClientPutInServer(client) {
-	if (WelcomeAdvertsEnabled) {
-		WelcomeAdvert(client);
+public void OnClientPutInServer(int client) 
+{
+	// Vol Cookie
+	char buffer[5];
+	GetClientCookie(client, VolCookie, buffer, 5);
+	if(!StrEqual(buffer, ""))
+	{
+		tunedVol[client] = StringToInt(buffer);
 	}
+	if(StrEqual(buffer,"")){
+		tunedVol[client] = 0;
+	}
+	
+	// Auto tune cookie
+	char buffer2[5];
+	GetClientCookie(client, AutoCookie, buffer2, 5);
+	if(StrEqual(buffer2, ""))
+	{
+		AutoTuned[client] = false;
+	}
+	else if(StrEqual(buffer2,"1"))
+	{
+		AutoTuned[client] = true;
+	}
+	else if(StrEqual(buffer2,"0"))
+	{
+		AutoTuned[client] = false;
+	}
+	
+	CreateTimer(15.0, Welcome, client, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public OnClientDisconnect(client) {
+public void OnClientDisconnect(int client) 
+{
 	isTuned[client] = false;
 }
 
-stock ClearTimer(&Handle:timer) {
-	if (timer != null) {
+stock void ClearTimer(Handle timer) 
+{
+	if (timer != null) 
+	{
 		KillTimer(timer);
 	}
 	
@@ -187,8 +229,26 @@ public int Native_IsPlayerListening(Handle plugin, int numParams)
 	
 }
 
-public Action WelcomeAdvert(any:client) {
-	CPrintToChat(client, "%t", "WelcomeAdvert");
+public Action Welcome(Handle tmr, int client) 
+{
+	if (IsFakeClient(client))	return;
+	
+	if (WelcomeAdvertsEnabled) 
+	{
+		CPrintToChat(client, "%t", "WelcomeAdvert");
+	}
+	
+	if(AutoTuned[client])
+	{
+		StreamPanel("Thanks for tuning into FragRadio!", "about:blank", client);
+				
+		isTuned[client] = true;
+				
+		char url[256];
+		FormatEx(url, sizeof(url), "http://%s/%s?vol=%d", StreamHost, WebPlayerScript, tunedVol[client]);
+		StreamPanel("You are tuned into FragRadio!", url, client);
+		CPrintToChat(client, "%T", "Auto Play", client);
+	}
 }
 
 public Action Advertise(Handle timer)
@@ -238,17 +298,19 @@ public Action Advertise(Handle timer)
 	}
 }
 
-public OnMapEnd() {
+public void OnMapEnd() 
+{
 	ClearTimer(g_hAdvertsTimer);
 	ClearTimer(g_hStreamTimer);
 	ClearTimer(g_hServerTimer);
 }
 
-public Cvar_Changed(Handle convar, const char[] oldValue, const char[] newValue) {
+public void Cvar_Changed(Handle convar, const char[] oldValue, const char[] newValue) 
+{
 	OnConfigsExecuted();
 }
 
-public Cvar_Change_Enabled(Handle convar, const char[] oldValue, const char[] newValue) {
+public void Cvar_Change_Enabled(Handle convar, const char[] oldValue, const char[] newValue) {
 	PluginEnabled = GetConVarBool(g_hCvarPluginStatus);
 	
 	if (PluginEnabled) {
@@ -264,13 +326,13 @@ public Cvar_Change_Enabled(Handle convar, const char[] oldValue, const char[] ne
 			g_hServerTimer = CreateTimer(ServerUpdateInterval, UpdateServerList, 0, TIMER_REPEAT);
 		}
 		
-		for (new i = 1; i <= MaxClients; i++) {
+		for (int i = 1; i <= MaxClients; i++) {
 			if (IsClientConnected(i) && IsClientInGame(i)) {
 				if (isTuned[i]) {
 					StreamPanel("Thanks for tuning into FragRadio!", "about:blank", i);
 					
 					char url[256];
-					FormatEx(url, sizeof(url), "http://%s/%s?vol=%s", StreamHost, WebPlayerScript, tunedVol[i]);
+					FormatEx(url, sizeof(url), "http://%s/%s?vol=%d", StreamHost, WebPlayerScript, tunedVol[i]);
 					StreamPanel("You are tuned into FragRadio!", url, i);
 					
 					CPrintToChat(i, "%t", "Enabled1");
@@ -282,7 +344,7 @@ public Cvar_Change_Enabled(Handle convar, const char[] oldValue, const char[] ne
 		ClearTimer(g_hStreamTimer);
 		ClearTimer(g_hServerTimer);
 		
-		for (new i = 1; i <= MaxClients; i++) {
+		for (int i = 1; i <= MaxClients; i++) {
 			if (IsClientConnected(i) && IsClientInGame(i)) {
 				if (isTuned[i]) {
 					StreamPanel("Thanks for tuning into FragRadio!", "about:blank", i);
@@ -293,32 +355,41 @@ public Cvar_Change_Enabled(Handle convar, const char[] oldValue, const char[] ne
 	}
 }
 
-public Cvar_Change_Adverts(Handle convar, const char[] oldValue, const char[] newValue) {
+public void Cvar_Change_Adverts(Handle convar, const char[] oldValue, const char[] newValue) 
+{
 	AdvertsEnabled = GetConVarBool(g_hCvarAdverts);
 	
-	if (AdvertsEnabled) {
+	if (AdvertsEnabled) 
+	{
 		g_hAdvertsTimer = CreateTimer(AdvertsInterval, Advertise, 0, TIMER_REPEAT);
-	} else {
+	} 
+	else 
+	{
 		ClearTimer(g_hAdvertsTimer);
 	}
 }
 
-public Cvar_Change_StreamInfo(Handle convar, const char[] oldValue, const char[] newValue) {
+public void Cvar_Change_StreamInfo(Handle convar, const char[] oldValue, const char[] newValue) 
+{
 	GetStreamInfo = GetConVarBool(g_hCvarGetStreamInfo);
 	
-	if (GetStreamInfo) {
+	if (GetStreamInfo) 
+	{
 		Server_Receive();
 		g_hStreamTimer = CreateTimer(StreamInterval, UpdateStreamInfo, 0, TIMER_REPEAT);
 		
 		Server_Send();
 		g_hServerTimer = CreateTimer(ServerUpdateInterval, UpdateServerList, 0, TIMER_REPEAT);
-	} else {
+	} 
+	else 
+	{
 		ClearTimer(g_hStreamTimer);
 		ClearTimer(g_hServerTimer);
 	}
 }
 
-public OnConfigsExecuted() {
+public void OnConfigsExecuted() 
+{
 	PluginEnabled = GetConVarBool(g_hCvarPluginStatus);
 	InteractEnabled = GetConVarBool(g_hCvarInteract);
 	RatingEnabled = GetConVarBool(g_hCvarRating);
@@ -335,12 +406,15 @@ public OnConfigsExecuted() {
 	GetConVarString(g_hCvarWebPlayerScript, WebPlayerScript, sizeof(WebPlayerScript));
 	ServerUpdateInterval = GetConVarFloat(g_hCvarServerUpdateInterval);
 	
-	if (PluginEnabled) {
-		if (AdvertsEnabled) {
+	if (PluginEnabled) 
+	{
+		if (AdvertsEnabled) 
+		{
 			g_hAdvertsTimer = CreateTimer(AdvertsInterval, Advertise, 0, TIMER_REPEAT);
 		}
 		
-		if (GetStreamInfo) {
+		if (GetStreamInfo) 
+		{
 			Server_Receive();
 			g_hStreamTimer = CreateTimer(StreamInterval, UpdateStreamInfo, 0, TIMER_REPEAT);
 			
@@ -350,37 +424,48 @@ public OnConfigsExecuted() {
 	}
 }
 
-public Action UpdateStreamInfo(Handle timer) {
+public Action UpdateStreamInfo(Handle timer) 
+{
 	Server_Receive();
 }
 
-public Action UpdateServerList(Handle timer) {
+public Action UpdateServerList(Handle timer) 
+{
 	Server_Send();
 }
 
-public Cmd_Check(char[] type, client) {
+public bool Cmd_Check(char[] type, int client) 
+{
 	if (client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client)) {
 		if (!PluginEnabled) {
 			CReplyToCommand(client, "%t", "Disabled2");
 			return false;
 		}
 		
-		if (StrEqual(type, "streaminfo") && !GetStreamInfo) {
+		if (StrEqual(type, "streaminfo") && !GetStreamInfo) 
+		{
 			CReplyToCommand(client, "%t", "Disabled3");
 			return false;
-		} else if (StrEqual(type, "interact") && !InteractEnabled) {
+		} 
+		else if (StrEqual(type, "interact") && !InteractEnabled) 
+		{
 			CReplyToCommand(client, "%t", "Disabled4");
 			return false;
-		} else if (StrEqual(type, "rating") && !RatingEnabled) {
+		} 
+		else if (StrEqual(type, "rating") && !RatingEnabled) 
+		{
 			CReplyToCommand(client, "%t", "Disabled5");
 			return false;
 		}
 		
-		if (!StrEqual(type, "streaminfo") && isTuned[client] != true) {
+		if (!StrEqual(type, "streaminfo") && isTuned[client] != true) 
+		{
 			CReplyToCommand(client, "%t", "NotTunedIn");
 			return false;
 		}
-	} else {
+	} 
+	else 
+	{
 		CReplyToCommand(client, "%t", "OnlyClients");
 		return false;
 	}
@@ -388,11 +473,16 @@ public Cmd_Check(char[] type, client) {
 	return true;
 }
 
-public Action Cmd_ShowDJ(client, args) {
-	if (Cmd_Check("streaminfo", client)) {
-		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
+public Action Cmd_ShowDJ(int client, int args) 
+{
+	if (Cmd_Check("streaminfo", client)) 
+	{
+		if (GetStreamInfo && !StrEqual(g_sDJ, "")) 
+		{
 			CReplyToCommand(client, "%t", "CurrentDJ", g_sDJ);
-		} else {
+		} 
+		else 
+		{
 			CReplyToCommand(client, "%t", "NoStreamInfo");
 		}
 	}
@@ -400,11 +490,15 @@ public Action Cmd_ShowDJ(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_ShowSong(client, args) {
-	if (Cmd_Check("streaminfo", client)) {
-		if (GetStreamInfo && !StrEqual(g_sSong, "")) {
+public Action Cmd_ShowSong(int client, int args) 
+{
+	if (Cmd_Check("streaminfo", client)) 
+	{
+		if (GetStreamInfo && !StrEqual(g_sSong, "")) 
+		{
 			CReplyToCommand(client, "%t", "CurrentSong", g_sSong);
-		} else {
+		} 
+		else {
 			CReplyToCommand(client, "%t", "NoStreamInfo");
 		}
 	}
@@ -412,7 +506,8 @@ public Action Cmd_ShowSong(client, args) {
 	return Plugin_Handled;
 }
 
-public StreamPanel(char[] title, char[] url, client) {
+public void StreamPanel(char[] title, char[] url, int client) 
+{
 	Handle Radio = CreateKeyValues("data");
 	KvSetString(Radio, "title", title);
 	KvSetString(Radio, "type", "2");
@@ -421,20 +516,42 @@ public StreamPanel(char[] title, char[] url, client) {
 	CloseHandle(Radio);
 }
 
-public RadioMenuHandle(Handle menu, MenuAction action, int client, int choice) {
-	if (action == MenuAction_Select) {
+public int RadioMenuHandle(Handle menu, MenuAction action, int client, int choice) 
+{
+	if (action == MenuAction_Select) 
+	{
 		char info[32];
 		bool found = GetMenuItem(menu, choice, info, sizeof(info));
 		
-		if (found) {
-			if (StringToInt(info) == 0) {
+		if (found) 
+		{
+			if(StrEqual(info, "Auto"))
+			{
+				AutoTuned[client] = true;
+				SetClientCookie(client, AutoCookie, "1");
+				CPrintToChat(client, "%t", "Auto Enabled");
+			}
+			
+			else if(StrEqual(info, "Auto2"))
+			{
+				AutoTuned[client] = false;
+				SetClientCookie(client, AutoCookie, "0");
+				CPrintToChat(client, "%t", "Auto Disabled");
+			}
+			
+			else if (StringToInt(info) == 0) 
+			{
 				isTuned[client] = false;
 				tunedVol[client] = 0;
 				
 				StreamPanel("Thanks for tuning into FragRadio!", "about:blank", client);
 				CPrintToChat(client, "%t", "TuningInto1");
-			} else {
-				if (isTuned[client] != true) {
+			} 
+			
+			else if (StringToInt(info) != 0) 
+			{
+				if (isTuned[client] != true) 
+				{
 					char name[128];
 					GetClientName(client, name, sizeof(name));
 					CPrintToChatAll("%t", "TuningInto2", name);
@@ -445,17 +562,23 @@ public RadioMenuHandle(Handle menu, MenuAction action, int client, int choice) {
 				isTuned[client] = true;
 				tunedVol[client] = StringToInt(info);
 				
+				SetClientCookie(client, VolCookie, info);
+				
 				char url[256];
 				FormatEx(url, sizeof(url), "http://%s/%s?vol=%s", StreamHost, WebPlayerScript, info);
 				StreamPanel("You are tuned into FragRadio!", url, client);
 			}
 		}
-	} else if (action == MenuAction_End) {
+	} 
+	
+	else if (action == MenuAction_End) 
+	{
 		CloseHandle(menu);
 	}
 }
 
-public Action Cmd_RadioMenu(client, args) {
+public Action Cmd_RadioMenu(int client, int args)
+{
 	if (!PluginEnabled) {
 		CReplyToCommand(client, "%t", "Disabled2");
 		return Plugin_Handled;
@@ -470,8 +593,23 @@ public Action Cmd_RadioMenu(client, args) {
 	
 	if (GetStreamInfo && !StrEqual(g_sDJ, "") && !StrEqual(g_sSong, "")) {
 		SetMenuTitle(menu, "%t", "RadioMenuTitle1", g_sDJ, g_sSong);
-	} else {
+	} 
+	else 
+	{
 		SetMenuTitle(menu, "%t", "RadioMenuTitle2");
+	}
+	
+	if (!AutoTuned[client])
+	{
+		char Auto[32];
+		Format(Auto, sizeof(Auto), "%t", "Auto");
+		AddMenuItem(menu, "Auto", Auto);
+	}
+	else
+	{
+		char Auto2[32];
+		Format(Auto2, sizeof(Auto2), "%t", "Disable Auto");
+		AddMenuItem(menu, "Auto2", Auto2);
 	}
 	
 	char Volume100[32];
@@ -498,7 +636,8 @@ public Action Cmd_RadioMenu(client, args) {
 	Format(Volume5, sizeof(Volume5), "%t", "Volume5");
 	AddMenuItem(menu, "5", Volume5);
 	
-	if (isTuned[client]) {
+	if (isTuned[client]) 
+	{
 		char Volume0[32];
 		Format(Volume0, sizeof(Volume0), "%t", "Volume0");
 		AddMenuItem(menu, "0", Volume0);
@@ -510,9 +649,12 @@ public Action Cmd_RadioMenu(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_Request(client, args) {
-	if (Cmd_Check("interact", client)) {
-		if (args < 1) {
+public Action Cmd_Request(int client, int args) 
+{
+	if (Cmd_Check("interact", client)) 
+	{
+		if (args < 1)
+		{
 			CReplyToCommand(client, "%t", "Usage1");
 			return Plugin_Handled;
 		}
@@ -520,22 +662,29 @@ public Action Cmd_Request(client, args) {
 		char request[256];
 		GetCmdArgString(request, sizeof(request));
 		
-		if (StrEqual(g_sDJ, "AutoDJ")) {
+		if (StrEqual(g_sDJ, "AutoDJ")) 
+		{
 			CReplyToCommand(client, "%t", "Request1");
 			return Plugin_Handled;
 		}
 		
-		if (strlen(request) < 8) {
+		if (strlen(request) < 8) 
+		{
 			CReplyToCommand(client, "%t", "Request2");
 			return Plugin_Handled;
-		} else if (strlen(request) > 255) {
+		} 
+		else if (strlen(request) > 255) 
+		{
 			CReplyToCommand(client, "%t", "Request3");
 			return Plugin_Handled;
 		}
 		
-		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
+		if (GetStreamInfo && !StrEqual(g_sDJ, ""))
+		{
 			CReplyToCommand(client, "%t", "Request4", g_sDJ);
-		} else {
+		} 
+		else 
+		{
 			CReplyToCommand(client, "%t", "Request5");
 		}
 		
@@ -545,9 +694,12 @@ public Action Cmd_Request(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_Shoutout(client, args) {
-	if (Cmd_Check("interact", client)) {
-		if (args < 1) {
+public Action Cmd_Shoutout(int client, int args) 
+{
+	if (Cmd_Check("interact", client)) 
+	{
+		if (args < 1) 
+		{
 			CReplyToCommand(client, "%t", "Usage2");
 			return Plugin_Handled;
 		}
@@ -555,22 +707,29 @@ public Action Cmd_Shoutout(client, args) {
 		char shoutout[256];
 		GetCmdArgString(shoutout, sizeof(shoutout));
 		
-		if (StrEqual(g_sDJ, "AutoDJ")) {
+		if (StrEqual(g_sDJ, "AutoDJ")) 
+		{
 			CReplyToCommand(client, "%t", "Shoutout1");
 			return Plugin_Handled;
 		}
 		
-		if (strlen(shoutout) < 8) {
+		if (strlen(shoutout) < 8) 
+		{
 			CReplyToCommand(client, "%t", "Shoutout2");
 			return Plugin_Handled;
-		} else if (strlen(shoutout) > 255) {
+		} 
+		else if (strlen(shoutout) > 255) 
+		{
 			CReplyToCommand(client, "%t", "Shoutout3");
 			return Plugin_Handled;
 		}
 		
-		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
+		if (GetStreamInfo && !StrEqual(g_sDJ, "")) 
+		{
 			CReplyToCommand(client, "%t", "Shoutout4", g_sDJ);
-		} else {
+		} 
+		else 
+		{
 			CReplyToCommand(client, "%t", "Shoutout5");
 		}
 		
@@ -580,8 +739,10 @@ public Action Cmd_Shoutout(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_Other(client, args) {
-	if (Cmd_Check("interact", client)) {
+public Action Cmd_Other(int client, int args) 
+{
+	if (Cmd_Check("interact", client)) 
+	{
 		if (args < 1) {
 			CReplyToCommand(client, "%t", "Usage3");
 			return Plugin_Handled;
@@ -590,22 +751,29 @@ public Action Cmd_Other(client, args) {
 		char other[256];
 		GetCmdArgString(other, sizeof(other));
 		
-		if (StrEqual(g_sDJ, "AutoDJ")) {
+		if (StrEqual(g_sDJ, "AutoDJ")) 
+		{
 			CReplyToCommand(client, "%t", "Other1");
 			return Plugin_Handled;
 		}
 		
-		if (strlen(other) < 8) {
+		if (strlen(other) < 8) 
+		{
 			CReplyToCommand(client, "%t", "Other2");
 			return Plugin_Handled;
-		} else if (strlen(other) > 255) {
+		} 
+		else if (strlen(other) > 255) 
+		{
 			CReplyToCommand(client, "%t", "Other3");
 			return Plugin_Handled;
 		}
 		
-		if (GetStreamInfo && !StrEqual(g_sDJ, "")) {
+		if (GetStreamInfo && !StrEqual(g_sDJ, "")) 
+		{
 			CReplyToCommand(client, "%t", "Other4", g_sDJ);
-		} else {
+		} 
+		else 
+		{
 			CReplyToCommand(client, "%t", "Other5");
 		}
 		
@@ -615,7 +783,7 @@ public Action Cmd_Other(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_Joke(client, args) {
+public Action Cmd_Joke(int client, int args) {
 	if (Cmd_Check("interact", client)) {
 		if (args < 1) {
 			CReplyToCommand(client, "%t", "Usage4");
@@ -650,7 +818,7 @@ public Action Cmd_Joke(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_Competition(client, args) {
+public Action Cmd_Competition(int client, int args) {
 	if (Cmd_Check("interact", client)) {
 		if (args < 1) {
 			CReplyToCommand(client, "%t", "Usage5");
@@ -685,7 +853,7 @@ public Action Cmd_Competition(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_Choon(client, args) {
+public Action Cmd_Choon(int client, int args) {
 	if (Cmd_Check("rating", client)) {
 		char name[128];
 		GetClientName(client, name, sizeof(name));
@@ -702,7 +870,7 @@ public Action Cmd_Choon(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_Poon(client, args) {
+public Action Cmd_Poon(int client, int args) {
 	if (Cmd_Check("rating", client)) {
 		char name[128];
 		GetClientName(client, name, sizeof(name));
@@ -719,7 +887,7 @@ public Action Cmd_Poon(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_djFTW(client, args) {
+public Action Cmd_djFTW(int client, int args) {
 	if (Cmd_Check("rating", client)) {
 		char name[128];
 		GetClientName(client, name, sizeof(name));
@@ -736,7 +904,7 @@ public Action Cmd_djFTW(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_djFTL(client, args) {
+public Action Cmd_djFTL(int client, int args) {
 	if (Cmd_Check("rating", client)) {
 		char name[128];
 		GetClientName(client, name, sizeof(name));
@@ -753,7 +921,7 @@ public Action Cmd_djFTL(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_djsFTW(client, args) {
+public Action Cmd_djsFTW(int client, int args) {
 	if (Cmd_Check("rating", client)) {
 		char name[128];
 		GetClientName(client, name, sizeof(name));
@@ -770,7 +938,7 @@ public Action Cmd_djsFTW(client, args) {
 	return Plugin_Handled;
 }
 
-public Action Cmd_djsFTL(client, args) {
+public Action Cmd_djsFTL(int client, int args) {
 	if (Cmd_Check("rating", client)) {
 		char name[128];
 		GetClientName(client, name, sizeof(name));
@@ -818,7 +986,8 @@ public Action Server_Receive() {
 	SocketConnect(socket, OnSocketConnected, OnSocketReceive, OnSocketDisconnected, StreamHost, StreamPort);
 }
 
-public Action Client_Send(char[] type, char[] message, client) {
+public Action Client_Send(char[] type, char[] message, int client) 
+{
 	Handle dp = CreateDataPack();
 	
 	WritePackString(dp, type);
@@ -869,9 +1038,13 @@ public OnSocketConnected(Handle socket, any:dp) {
 		EncodeBase64(eip, sizeof(eip), ip);
 		
 		FormatEx(socketStr, sizeof(socketStr), "GET %s?ip=%s HTTP/1.0\r\nHost: %s\r\nConnection: close\r\n\r\n", StreamUpdatePath, eip, StreamHost);
-	} else if (StrEqual(type, "streaminfo")) {
+	} 
+	else if (StrEqual(type, "streaminfo")) 
+	{
 		FormatEx(socketStr, sizeof(socketStr), "GET %s HTTP/1.0\r\nHost: %s\r\nConnection: close\r\n\r\n", StreamStatsPath, StreamHost);
-	} else {
+	}
+	else 
+	{
 		char etype[64];
 		EncodeBase64(etype, sizeof(etype), type);
 		
@@ -912,12 +1085,14 @@ public OnSocketReceive(Handle socket, char[] receiveData, const dataSize, any:dp
 	char type[32];
 	ReadPackString(dp, type, sizeof(type));
 	
-	if (StrEqual(type, "streaminfo")) {
+	if (StrEqual(type, "streaminfo"))
+	{
 		strcopy(g_sDataReceived, sizeof(g_sDataReceived), receiveData);
 	}
 }
 
-public OnSocketDisconnected(Handle socket, any dp) {
+public OnSocketDisconnected(Handle socket, any dp) 
+{
 	ResetPack(dp);
 	
 	char type[32];
@@ -943,18 +1118,21 @@ public OnSocketDisconnected(Handle socket, any dp) {
 			
 			DeleteFile(file);
 			
-			if (KvJumpToKey(Info, "FragRadio")) {
+			if (KvJumpToKey(Info, "FragRadio")) 
+			{
 				char dj[512];
 				char song[512];
 				KvGetString(Info, "DJ", dj, sizeof(dj), "Unknown");
 				KvGetString(Info, "SONG", song, sizeof(song), "Unknown");
 				
-				if (!StrEqual(dj, g_sDJ)) {
+				if (!StrEqual(dj, g_sDJ)) 
+				{
 					g_sDJ = dj;
 					CPrintToChatAll("%t", "NowPresenting", g_sDJ);
 				}
 				
-				if (!StrEqual(song, g_sSong)) {
+				if (!StrEqual(song, g_sSong)) 
+				{
 					g_sSong = song;
 					CPrintToChatAll("%t", "NowPlaying", g_sSong);
 				}
@@ -968,7 +1146,8 @@ public OnSocketDisconnected(Handle socket, any dp) {
 	CloseHandle(socket);
 }
 
-public OnSocketError(Handle socket, const errorType, const errorNum, any:dp) {
+public OnSocketError(Handle socket, const errorType, const errorNum, any dp) 
+{
 	LogError("[FragRadio] Socket error %d (errno %d)", errorType, errorNum);
 	
 	CloseHandle(dp);
