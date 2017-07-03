@@ -2,10 +2,11 @@
 Improved version of [FragRadio](http://fragradio.com/) sourcemod plugin
 
 ## Changes In This Edition
-* Add Color Support
-* Traditional Chinese Translation
-* Random Advert
-* Auto Generate Config at cfg/sourcemod/plugin.akami_fragradio.cfg
+* Colors Support.
+* Translation Support.
+* Auto Play Radio.
+* Random Advert.
+* Auto Generate Config at cfg/sourcemod/plugin.kento_fragradio.cfg
 
 ## Special Thanks
 * [Poheart](https://github.com/Poheart) - For his new Sourcemod syntax + native update.
