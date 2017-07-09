@@ -4,7 +4,7 @@ Improved version of [FragRadio](http://fragradio.com/) sourcemod plugin
 ## Changes In This Edition
 * Colors Support.
 * Translation Support.
-* Auto Play Radio.
+* "Autoplay Radio" Option In Menu.
 * Random Advert.
 * Auto Generate Config at cfg/sourcemod/plugin.kento_fragradio.cfg
 
