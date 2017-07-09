@@ -231,7 +231,7 @@ public int Native_IsPlayerListening(Handle plugin, int numParams)
 
 public Action Welcome(Handle tmr, int client) 
 {
-	if (IsFakeClient(client))	return;
+	if (IsFakeClient(client) || !IsValidClient(client))	return;
 	
 	if (WelcomeAdvertsEnabled) 
 	{
@@ -1153,3 +1153,11 @@ public OnSocketError(Handle socket, const errorType, const errorNum, any dp)
 	CloseHandle(dp);
 	CloseHandle(socket);
 } 
+
+stock bool IsValidClient(int client)
+{
+	if (client <= 0) return false;
+	if (client > MaxClients) return false;
+	if (!IsClientConnected(client)) return false;
+	return IsClientInGame(client);
+}
