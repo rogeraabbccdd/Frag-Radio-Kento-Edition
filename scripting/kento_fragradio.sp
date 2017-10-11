@@ -18,7 +18,7 @@
 	
 ****************************************************************************/
 
-#define PLUGINVERSION "1.4.8.Kento.2"
+#define PLUGINVERSION "1.4.8.Kento.3"
 
 #pragma semicolon 1
 #include <sourcemod>
@@ -231,7 +231,7 @@ public int Native_IsPlayerListening(Handle plugin, int numParams)
 
 public Action Welcome(Handle tmr, int client) 
 {
-	if (IsFakeClient(client) || !IsValidClient(client))	return;
+	if (!IsValidClient(client) || IsFakeClient(client))	return;
 	
 	if (WelcomeAdvertsEnabled) 
 	{
